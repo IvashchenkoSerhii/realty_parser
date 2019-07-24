@@ -3,7 +3,6 @@ version: '2'
 services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
-    container_name: elasticsearch
     environment:
       - discovery.type=single-node
       - "ES_JAVA_OPTS=-Xmx256m -Xms256m"
@@ -12,8 +11,14 @@ services:
       - ./elasticsearch/data:/usr/share/elasticsearch/data
     ports:
       - "127.0.0.1:9200:9200"
-    networks:
-      - parser
+    restart: on-failure
 
-networks:
-  parser:
+  aiohttp:
+    build: ./aiohttp
+    volumes:
+      - ./aiohttp:/server
+    working_dir: /server
+    command: python -m aiohttp_handler config_docker.yaml
+    ports:
+      - "127.0.0.1:8000:8000"
+    restart: on-failure

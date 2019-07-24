@@ -1,0 +1,7 @@
+-r requirements.txt
+
+aiohttp-devtools==0.13.1
+Click==7.0
+devtools==0.5
+Pygments==2.4.2
+watchgod==0.4
