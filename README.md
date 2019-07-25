@@ -1,5 +1,13 @@
 # REALTY PARSER
 
+Stack: python, aiohttp, elasticsearch.
+
+Periodically updates realty info from source.
+
+Set update timer (in seconds):
+
+    aiohttp/config/config_base.yaml:data_source:upd_timeout
+
 #### Run application:
     docker-compose up -d
 

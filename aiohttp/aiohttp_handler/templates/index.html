@@ -1,5 +1,34 @@
 {% extends "base.html" %}
-
 {% block content %}
-    <p>Some content here.</p>
+<h2>{{body_header}}</h2>
+{% for item in result_list %}
+<p>
+    <table>
+        <tr>
+            <td>заголовок</td>
+            <td><a href="https://dom.ria.com/ru/{{item['beautiful_url']}}">{{item['title']}}</a></td>
+        </tr>
+        <tr>
+            <td>админ. район</td>
+            <td>{{ item['district_name'] }}</td>
+        </tr>
+        <tr>
+            <td>кол-во комнат</td>
+            <td>{{ item['rooms_count'] }}</td>
+        </tr>
+        <tr>
+            <td>цена</td>
+            <td>{{ item['priceArr']['3'] }}</td>
+        </tr>
+        <tr>
+            <td>описание</td>
+            <td>{{ item['description'][:92] + (item['description'][92:] and '...') }}</td>
+        </tr>
+    </table>
+</p>
+{% endfor %}
+
+<p>pages: {{pages}}</p>
+
+<p>page: {{page}}</p>
 {% endblock %}

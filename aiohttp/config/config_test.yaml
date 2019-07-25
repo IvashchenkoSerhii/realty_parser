@@ -1,3 +1,8 @@
 host: 127.0.0.1
 port: 8020
 is_test: true
+
+es:
+  indexes:
+    realty: 'test_index'
+    system: 'test_system_index'

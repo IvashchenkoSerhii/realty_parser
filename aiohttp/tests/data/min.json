@@ -1,0 +1,50 @@
+[
+{
+    "beautiful_url": "url1.html",
+    "realty_id": 111,
+    "description": "description test2 text",
+    "metro_station_name": "station 1",
+    "street_name": "street 1",
+    "district_name": "dsitrict 1",
+    "city_name": "City",
+    "rooms_count": 1,
+    "priceArr":
+    {
+        "1": 100,
+        "2": 80,
+        "3": 2600
+    }
+},
+{
+    "beautiful_url": "url2.html",
+    "realty_id": 222,
+    "description": "description test text",
+    "metro_station_name": "station 2",
+    "street_name": "street 2",
+    "district_name": "dsitrict 2",
+    "city_name": "City",
+    "rooms_count": 2,
+    "priceArr":
+    {
+        "1": 150,
+        "2": 120,
+        "3": 3900
+    }
+},
+{
+    "beautiful_url": "url3.html",
+    "realty_id": 333,
+    "description": "description test3 text",
+    "metro_station_name": "station 3",
+    "street_name": "street 3",
+    "district_name": "dsitrict 3",
+    "city_name": "City",
+    "rooms_count": 3,
+    "priceArr":
+    {
+        "1": 200,
+        "2": 160,
+        "3": 5200
+    }
+}
+]

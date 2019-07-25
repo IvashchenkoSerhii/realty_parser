@@ -7,6 +7,7 @@ import uvloop
 import ujson
 from aiohttp import web
 
+from aiohttp_handler import db
 from aiohttp_handler.routes import setup_routes
 from aiohttp_handler.settings import get_config
 
@@ -45,8 +46,14 @@ def create_app(config_filename='config_local.yaml'):
     setup_jinja(app)
     setup_routes(app)
 
+    app.on_startup.append(db.init_es)
+    app.on_shutdown.append(db.close_es)
+
     app.on_startup.append(create_client_session)
     app.on_shutdown.append(close_client_session)
+
+    if not app.cfg['is_test']:
+        app.on_startup.append(db.periodic_updater_init)
 
     return app
 
