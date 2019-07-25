@@ -9,12 +9,12 @@ class IndexHandler(web.View):
     @aiohttp_jinja2.template('index.html')
     async def get(self):
 
-        filters = db.get_filters(self.request.rel_url.query)
+        filters = db.get_filters(self.request.rel_url.query_string)
         log.debug(f'filters: {filters}')
 
         data = {
-            'title': 'Title',
-            'body_header': 'Header',
+            'title': 'Поиск недвижимости',
+            'body_header': 'Долгосрочная аренда квартиры в Киеве',
             'filters': filters
         }
         try:

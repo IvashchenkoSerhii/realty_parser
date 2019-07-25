@@ -1,27 +1,31 @@
 import asyncio
 import time
-import ujson
 
 from datetime import datetime
+from urllib import parse
 from ..settings import log
 
 
-def get_filters(query_dct):
+def get_filters(query_string):
     ACCEPTED_FILTERS = [
-        'description', 'district_names', 'rooms_count',
-        'price_min', 'price_max', 'price_curr', 'page', 'districts'
+        'description', 'rooms_count', 'price_min', 'price_max',
+        'price_curr', 'page', 'districts'
     ]
     filters = {}
-    for key in query_dct:
-        if key not in ACCEPTED_FILTERS:
-            log.error(f'key: {key} not in ACCEPTED_FILTERS')
-        elif key == 'description':
-            filters[key] = query_dct[key]
-        else:
-            try:
-                filters[key] = ujson.loads(query_dct[key])
-            except ValueError as e:
-                log.error(f'ujson loads({query_dct[key]}) error: {e}')
+    try:
+        query_dct = parse.parse_qs(query_string)
+        for key, val in query_dct.items():
+            if key not in ACCEPTED_FILTERS:
+                log.error(f'key: {key} not in ACCEPTED_FILTERS')
+            elif key in ['districts', 'rooms_count']:
+                filters[key] = [int(v) for v in val]
+            elif key == 'description':
+                filters[key] = val[0]
+            else:
+                filters[key] = int(val[0])
+    except ValueError as e:
+        log.error(f'get_filters error: {e}')
+        return {}
     return filters
 
 

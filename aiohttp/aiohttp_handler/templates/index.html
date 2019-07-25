@@ -1,34 +1,85 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>{{body_header}}</h2>
-{% for item in result_list %}
-<p>
-    <table>
-        <tr>
-            <td>заголовок</td>
-            <td><a href="https://dom.ria.com/ru/{{item['beautiful_url']}}">{{item['title']}}</a></td>
-        </tr>
-        <tr>
-            <td>админ. район</td>
-            <td>{{ item['district_name'] }}</td>
-        </tr>
-        <tr>
-            <td>кол-во комнат</td>
-            <td>{{ item['rooms_count'] }}</td>
-        </tr>
-        <tr>
-            <td>цена</td>
-            <td>{{ item['priceArr']['3'] }}</td>
-        </tr>
-        <tr>
-            <td>описание</td>
-            <td>{{ item['description'][:92] + (item['description'][92:] and '...') }}</td>
-        </tr>
-    </table>
-</p>
-{% endfor %}
+<h2>
+    <center>{{body_header}}</center>
+</h2>
+<div class="container">
+    <div class="row">
+        <div class="col col-lg-2">
+            <p> <b>Районы Киева:</b>
+                {% for key, value in app['cfg']['districts'].items() %}
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="checkDist{{key}}" name="checkDist" value={{key}} {% if key in filters.districts %} checked {% endif %}>
+                    <label class="custom-control-label" for="checkDist{{key}}">{{value}}</label>
+                </div>
+                {% endfor %}
+            </p>
+            <p> <b>Количество комнат:</b> <br>
+                {% for i in range(1, 10) %}
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="checkRoom{{i}}" name="checkRoom" value={{i}} {% if i in filters.rooms_count %} checked {% endif %}>
+                    <label class="form-check-label" for="checkRoom{{i}}">{{i}}</label>
+                </div>
+                {% endfor %}
+            </p>
+            <p><b>Цена:</b>
+                <input type="text" class="form-control" id="price_min" placeholder="от" {% if filters.price_min %} value={{filters.price_min}} {% endif %} />
+                <input type="text" class="form-control" id="price_max" placeholder="до" {% if filters.price_max %} value={{filters.price_max}} {% endif %} />
+            </p>
+            <div class="form-group">
+                <label for="description">Поиск по описанию</label>
+                <textarea class="form-control" id="description" rows="3">{% if filters.description %}{{filters.description}} {% endif %}</textarea>
+            </div>
+            <input type="button" id="submitFilters" name="submitFilters" value="Submit" />
+            {% if result_list %}
+            <p>страница: {{page + 1}}/{{pages}}</p>
+            {% endif %}
+        </div>
+        <div class="col-sm">
+            {% if not result_list %}
+            <div class="alert alert-info" role="alert">
+                Результатов нет.
+            </div>
+            {% endif %}
+            {% for item in result_list %}
+            <table class="table table-bordered">
+                <tr>
+                    <td>
+                        <a href="https://dom.ria.com/ru/{{item['beautiful_url']}}">{{item['title']}}</a>
+                        <br>{{ item.district_name }} район
+                        | {{ item.rooms_count }} {% if item.rooms_count == 1 %}комната{% else %}комнаты{% endif %}
+                        | {{ item.priceArr['3'] }} грн.
+                        <br>{{ item.description|safe|truncate(220) }}
+                    </td>
+                </tr>
+            </table>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+$('#submitFilters').click(function() {
+    var arrDist = $('input:checkbox[name=checkDist]:checked').map(function() {
+        return Number(this.value);
+    }).get();
+    var arrRoom = $('input:checkbox[name=checkRoom]:checked').map(function() {
+        return Number(this.value);
+    }).get();
+    var price_min = $("#price_min").val();
+    var price_max = $("#price_max").val();
+    var description = $("#description").val();
 
-<p>pages: {{pages}}</p>
-
-<p>page: {{page}}</p>
+    var queryData = {
+        'districts': arrDist,
+        'rooms_count': arrRoom,
+        'price_min': price_min,
+        'price_max': price_max,
+        'description': description,
+        'page': 0,
+    };
+    var query_string = $.param(queryData, true);
+    window.location.href = window.location.pathname + "?" + query_string
+});
+</script>
+<div align="right">Источник: <a href="https://dom.ria.com">dom.ria.com</a></div>
 {% endblock %}
