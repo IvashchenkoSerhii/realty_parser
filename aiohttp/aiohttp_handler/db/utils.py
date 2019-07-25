@@ -6,20 +6,24 @@ from urllib import parse
 from ..settings import log
 
 
+ACCEPTED_FILTERS = {
+    'description', 'rooms_count', 'price_min', 'price_max',
+    'price_curr', 'page', 'districts', 'sort'
+}
+LIST_OF_INT_FILTERS = {'districts', 'rooms_count'}
+STR_FILTERS = {'description', 'sort'}
+
+
 def get_filters(query_string):
-    ACCEPTED_FILTERS = [
-        'description', 'rooms_count', 'price_min', 'price_max',
-        'price_curr', 'page', 'districts'
-    ]
     filters = {}
     try:
         query_dct = parse.parse_qs(query_string)
         for key, val in query_dct.items():
             if key not in ACCEPTED_FILTERS:
                 log.error(f'key: {key} not in ACCEPTED_FILTERS')
-            elif key in ['districts', 'rooms_count']:
+            elif key in LIST_OF_INT_FILTERS:
                 filters[key] = [int(v) for v in val]
-            elif key == 'description':
+            elif key in STR_FILTERS:
                 filters[key] = val[0]
             else:
                 filters[key] = int(val[0])
@@ -72,6 +76,10 @@ def minimaze_item(item):
     item_min['priceArr'] = {
         k: int(v.replace(' ', ''))
         for k, v in item_min['priceArr'].items()}
+    # publishing_date: "2019-06-24 15:13:24"
+    publishing_date = datetime.strptime(
+        item['publishing_date'], '%Y-%m-%d %H:%M:%S')
+    item_min['publishing_date'] = publishing_date
     return item_min
 
 

@@ -3,6 +3,11 @@ import math
 # from ..settings import log
 
 
+SEARCH_FIELDS = [
+    'description', 'district_name', 'street_name', 'metro_station_name'
+]
+
+
 def get_title(item):
     """Create short title for realty item."""
 
@@ -34,7 +39,8 @@ def compact_item(item):
 
 async def search_realty(
         app, description=None, districts=None, rooms_count=None,
-        price_min=None, price_max=None, price_curr=3, page=0, **kwargs):
+        price_min=None, price_max=None, price_curr=3, page=0, sort=None,
+        **kwargs):
     """Search realty in ES with filters.
 
     arg: description: str - searchable text
@@ -44,20 +50,21 @@ async def search_realty(
     arg: price_max: int
     arg: price_curr: int : 1 - USD, 2 - EUR, 3 - UAH
     arg: page: int
+    arg: sort: pr_a, pr_d, pd_a, pd_d
     """
-
     offset = 10
     from_ = page * offset
 
     query = {
         'bool': {
-            'must': [],
-            'filter': []
+            'should': [],
+            'filter': [],
+            # 'minimum_should_match': '1<25%'  # TODO config
         }
     }
     if description:
-        # TODO search by short title.
-        query['bool']['must'].append({'match': {'description': description}})
+        for key in SEARCH_FIELDS:
+            query['bool']['should'].append({'match': {key: description}})
 
     if districts:
         d_dict = app.cfg['districts']
@@ -74,16 +81,23 @@ async def search_realty(
             prices['lte'] = price_max
         query['bool']['filter'].append(
             {"range": {f"priceArr.{price_curr}": prices}})
-
+    sort_query = []
+    if sort:
+        abbreviations = {
+            'pd': 'publishing_date',
+            'pr': f'priceArr.{price_curr}',
+            'a': 'asc',
+            'd': 'desc',
+        }
+        field, order = sort.split('_')
+        sort_query.append(
+            {abbreviations[field]: {"order": abbreviations[order]}})
     res = await app.es.search(
         index=app.cfg['es']['indexes']['realty'],
         body={
             "from": from_, "size": offset,
             'query': query,
-            "sort": [
-                "_score",
-                {"priceArr.3": {"order": "asc"}}
-            ]
+            "sort": sort_query
         }
     )
 

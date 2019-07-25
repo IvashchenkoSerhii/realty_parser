@@ -1,7 +1,9 @@
 {% extends "base.html" %}
+{% set title = "Поиск недвижимости" %}
+
 {% block content %}
 <h2>
-    <center>{{body_header}}</center>
+    <center>Долгосрочная аренда квартиры в Киеве</center>
 </h2>
 <div class="container">
     <div class="row">
@@ -28,7 +30,23 @@
             </p>
             <div class="form-group">
                 <label for="description"><b>Поиск по описанию:</b></label>
-                <textarea class="form-control" id="description" rows="4">{% if filters.description %}{{filters.description}} {% endif %}</textarea>
+                <textarea class="form-control" id="description" rows="3">{% if filters.description %}{{filters.description}} {% endif %}</textarea>
+            </div>
+            <div><b>Сортировка:</b>
+                {%
+                    set abbreviations = [
+                        ('pr_a', 'по цене вверх'),
+                        ('pr_d', 'по цене вниз'),
+                        ('pd_a', 'по дате вверх'),
+                        ('pd_d', 'по дате вниз')
+                    ]
+                %}
+                {% for abbreviation, label in abbreviations %}
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="sortRadios" id="sortRadios1" value="{{abbreviation}}" {% if filters.sort == abbreviation %}checked{% endif %}>
+                  <label class="form-check-label" for="exampleRadios1">{{label}}</label>
+                </div>
+                {% endfor %}
             </div>
             <input type="button" class="btn btn-primary" id="submitFilters" name="submitFilters" value="Submit" />
         </div>
@@ -94,6 +112,7 @@ $('#submitFilters').click(function() {
     var price_min = $("#price_min").val();
     var price_max = $("#price_max").val();
     var description = $("#description").val();
+    var sort = $('input[name=sortRadios]:checked').val()
 
     var queryData = {
         'districts': arrDist,
@@ -101,6 +120,7 @@ $('#submitFilters').click(function() {
         'price_min': price_min,
         'price_max': price_max,
         'description': description,
+        'sort': sort,
         'page': 0,
     };
     var query_string = $.param(queryData, true);

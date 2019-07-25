@@ -12,11 +12,7 @@ class IndexHandler(web.View):
         filters = db.get_filters(self.request.rel_url.query_string)
         log.debug(f'filters: {filters}')
 
-        data = {
-            'title': 'Поиск недвижимости',
-            'body_header': 'Долгосрочная аренда квартиры в Киеве',
-            'filters': filters
-        }
+        data = {'filters': filters}
         try:
             result_list, count, pages = await db.search_realty(
                 app=self.request.app, **filters)
