@@ -1,5 +1,4 @@
 import aiohttp_jinja2
-import ujson
 from aiohttp import web
 
 from .. import db
@@ -10,19 +9,7 @@ class IndexHandler(web.View):
     @aiohttp_jinja2.template('index.html')
     async def get(self):
 
-        # TODO separate func for parse filters.
-        ACCEPTED_FILTERS = [
-            'description', 'district_names', 'rooms_count',
-            'price_min', 'price_max', 'price_curr', 'page', 'districts']
-        filters = {}
-        for key in self.request.rel_url.query:
-            if key not in ACCEPTED_FILTERS:
-                log.error(f'key: {key} not in ACCEPTED_FILTERS')
-            elif key == 'description':
-                filters[key] = self.request.rel_url.query[key]
-            else:
-                filters[key] = ujson.loads(self.request.rel_url.query[key])
-
+        filters = db.get_filters(self.request.rel_url.query)
         log.debug(f'filters: {filters}')
 
         data = {

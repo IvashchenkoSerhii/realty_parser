@@ -1,8 +1,28 @@
 import asyncio
 import time
+import ujson
 
 from datetime import datetime
 from ..settings import log
+
+
+def get_filters(query_dct):
+    ACCEPTED_FILTERS = [
+        'description', 'district_names', 'rooms_count',
+        'price_min', 'price_max', 'price_curr', 'page', 'districts'
+    ]
+    filters = {}
+    for key in query_dct:
+        if key not in ACCEPTED_FILTERS:
+            log.error(f'key: {key} not in ACCEPTED_FILTERS')
+        elif key == 'description':
+            filters[key] = query_dct[key]
+        else:
+            try:
+                filters[key] = ujson.loads(query_dct[key])
+            except ValueError as e:
+                log.error(f'ujson loads({query_dct[key]}) error: {e}')
+    return filters
 
 
 def minimaze_item(item):
