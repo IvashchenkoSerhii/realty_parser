@@ -29,6 +29,39 @@ def get_filters(query_string):
     return filters
 
 
+def abbreviated_pages(page, n):
+    """
+    Return a list of numbers from 1 to `n`, with `page` indicated,
+    and abbreviated with ellipses if too long.
+
+    abbreviated_pages(20, 40)
+    [1, '...', 18, 19, 20, 21, 22, '...', 40]
+
+    https://codereview.stackexchange.com/a/15239
+    """
+    assert(0 < n)
+    assert(0 < page <= n)
+
+    if n <= 10:
+        pages = set(range(1, n + 1))
+    else:
+        pages = (
+            set([1]) |
+            set(range(max(1, page - 2), min(page + 3, n + 1))) |
+            set(range(n, n + 1))
+        )
+
+    def abbreviate():
+        last_page = 0
+        for p in sorted(pages):
+            if p != last_page + 1:
+                yield '...'
+            yield p
+            last_page = p
+
+    return list(abbreviate())
+
+
 def minimaze_item(item):
     required_fields = [
         'realty_id', 'beautiful_url', 'description', 'rooms_count',

@@ -14,11 +14,11 @@
                 </div>
                 {% endfor %}
             </p>
-            <p> <b>Количество комнат:</b> <br>
+            <p> <b>Количество комнат:</b>
                 {% for i in range(1, 10) %}
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" id="checkRoom{{i}}" name="checkRoom" value={{i}} {% if i in filters.rooms_count %} checked {% endif %}>
-                    <label class="form-check-label" for="checkRoom{{i}}">{{i}}</label>
+                    <input class="form-check-input custom-control-input" type="checkbox" id="checkRoom{{i}}" name="checkRoom" value={{i}} {% if i in filters.rooms_count %} checked {% endif %}>
+                    <label class="custom-control-label" for="checkRoom{{i}}">{{i}}</label>
                 </div>
                 {% endfor %}
             </p>
@@ -27,20 +27,19 @@
                 <input type="text" class="form-control" id="price_max" placeholder="до" {% if filters.price_max %} value={{filters.price_max}} {% endif %} />
             </p>
             <div class="form-group">
-                <label for="description">Поиск по описанию</label>
-                <textarea class="form-control" id="description" rows="3">{% if filters.description %}{{filters.description}} {% endif %}</textarea>
+                <label for="description"><b>Поиск по описанию:</b></label>
+                <textarea class="form-control" id="description" rows="4">{% if filters.description %}{{filters.description}} {% endif %}</textarea>
             </div>
-            <input type="button" id="submitFilters" name="submitFilters" value="Submit" />
-            {% if result_list %}
-            <p>страница: {{page + 1}}/{{pages}}</p>
-            {% endif %}
+            <input type="button" class="btn btn-primary" id="submitFilters" name="submitFilters" value="Submit" />
         </div>
         <div class="col-sm">
-            {% if not result_list %}
             <div class="alert alert-info" role="alert">
+            {% if not result_list %}
                 Результатов нет.
-            </div>
+            {% else %}
+                Нашлось: {{count}} объявлений.
             {% endif %}
+            </div>
             {% for item in result_list %}
             <table class="table table-bordered">
                 <tr>
@@ -57,6 +56,33 @@
         </div>
     </div>
 </div>
+{% if result_list %}
+<div class="row align-items-center justify-content-center">
+    <div class="btn-group" role="group" aria-label="Pagination">
+        {% if page == 0 %}
+        <button type="button" class="btn btn-outline-secondary" disabled><<</button>
+        {% else %}
+        <button type="button" class="btn btn-outline-secondary" onclick="gotoPage({{page - 1}})"><<</button>
+        {% endif %}
+        <a href="#" class="btn btn-outline-light btn-lg disabled" tabindex="-1" role="button" aria-disabled="true"></a>
+
+        {% for p in pagination %}
+        {% if p == '...' %}
+        <a href="#" class="btn btn-outline-secondary btn-lg disabled" tabindex="-1" role="button" aria-disabled="true">...</a>
+        {% else %}
+        <button type="button" class="btn btn-{% if (p - 1) == page %}primary{% else %}outline-secondary{% endif %}" onclick="gotoPage({{p - 1}})">{{p}}</button>
+        {% endif %}
+        {% endfor %}
+
+        <a href="#" class="btn btn-outline-light btn-lg disabled" tabindex="-1" role="button" aria-disabled="true"></a>
+        {% if page + 1 == pages %}
+        <button type="button" class="btn btn-outline-secondary" disabled>>></button>
+        {% else %}
+        <button type="button" class="btn btn-outline-secondary" onclick="gotoPage({{page + 1}})">>></button>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
 <script type="text/javascript">
 $('#submitFilters').click(function() {
     var arrDist = $('input:checkbox[name=checkDist]:checked').map(function() {
@@ -80,6 +106,13 @@ $('#submitFilters').click(function() {
     var query_string = $.param(queryData, true);
     window.location.href = window.location.pathname + "?" + query_string
 });
+
+function gotoPage(page) {
+    var filters_ = {{ filters | safe }};
+    filters_.page = page;
+    var query_string = $.param(filters_, true);
+    window.location.href = window.location.pathname + "?" + query_string
+}
 </script>
 <div align="right">Источник: <a href="https://dom.ria.com">dom.ria.com</a></div>
 {% endblock %}
