@@ -1,4 +1,6 @@
 import pytest
+import time
+
 from aiohttp_handler.main import create_app
 from .init_db import create_index, sample_data, delete_index
 
@@ -33,6 +35,11 @@ def delete_create_before():
     create_index()
     sample_data()
     yield
+
+
+@pytest.fixture
+def wait_index():
+    time.sleep(1)
 
 
 @pytest.fixture

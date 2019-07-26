@@ -8,6 +8,7 @@
     python -m aiohttp_handler  # prod
 
 #### Run tests:
+`run elasticsearch before`
 
     pytest tests/ -vv
 

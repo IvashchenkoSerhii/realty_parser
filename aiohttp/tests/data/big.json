@@ -1,0 +1,17 @@
+{
+    "street_name": "street_name",
+    "rooms_count": 1,
+    "beautiful_url": "beautiful_url",
+    "description": "description",
+    "publishing_date": "2019-07-24 00:00:00",
+    "floor": 2,
+    "city_name": "city_name",
+    "realty_id": 123456,
+    "district_name": "district_name",
+    "priceArr":
+    {
+        "1": "851",
+        "2": "763",
+        "3": "22 000"
+    }
+}

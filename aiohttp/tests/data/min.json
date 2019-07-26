@@ -5,7 +5,7 @@
     "description": "description test2 text",
     "metro_station_name": "station 1",
     "street_name": "street 1",
-    "district_name": "dsitrict 1",
+    "district_name": "district 1",
     "city_name": "City",
     "rooms_count": 1,
     "priceArr":
@@ -22,7 +22,7 @@
     "description": "description test text",
     "metro_station_name": "station 2",
     "street_name": "street 2",
-    "district_name": "dsitrict 2",
+    "district_name": "district 2",
     "city_name": "City",
     "rooms_count": 2,
     "priceArr":
@@ -39,7 +39,7 @@
     "description": "description test3 text",
     "metro_station_name": "station 3",
     "street_name": "street 3",
-    "district_name": "dsitrict 3",
+    "district_name": "district 3",
     "city_name": "City",
     "rooms_count": 3,
     "priceArr":
