@@ -112,6 +112,26 @@ async def periodic_updater(app):
         await asyncio.sleep(5)  # wait ES update index
 
 
+async def wait_es_ping(app, sleep=10, log_errors=True):
+    """
+    Loop until the server responds to ping.
+
+    Args:
+        sleep:int: time in seconds to sleep for each iteration
+        log_errors:bool:
+    """
+    while True:
+        try:
+            ping = await app.es.ping()
+            log.debug(f'es.ping: {ping}')
+            assert ping
+            break
+        except Exception as e:
+            if log_errors:
+                log.error(f'es.ping: {e}')
+            await asyncio.sleep(sleep)
+
+
 async def get_update_date(app):
     """
     Returns `date_from` and `date_update` from ES or creates empty values.
@@ -127,15 +147,7 @@ async def get_update_date(app):
         date_update:float: `time.time()` like 1564122523.763925
     """
     index = app.cfg['es']['indexes']['system']
-    while True:
-        try:
-            ping = await app.es.ping()
-            log.debug(f'es.ping: {ping}')
-            assert ping
-            break
-        except Exception as e:
-            log.error(f'es.ping: {e}')
-            await asyncio.sleep(10)
+    await wait_es_ping(app)
 
     exists = await app.es.exists(index=index, id='update_date')
 
