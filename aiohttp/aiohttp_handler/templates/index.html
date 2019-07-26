@@ -25,8 +25,8 @@
                 {% endfor %}
             </p>
             <p><b>Цена:</b>
-                <input type="text" class="form-control" id="price_min" placeholder="от" {% if filters.price_min %} value={{filters.price_min}} {% endif %} />
-                <input type="text" class="form-control" id="price_max" placeholder="до" {% if filters.price_max %} value={{filters.price_max}} {% endif %} />
+                <input type="number" class="form-control" id="price_min" placeholder="от" {% if filters.price_min %} value={{filters.price_min}} {% endif %} />
+                <input type="number" class="form-control" id="price_max" placeholder="до" {% if filters.price_max %} value={{filters.price_max}} {% endif %} />
             </p>
             <div class="form-group">
                 <label for="description"><b>Поиск по описанию:</b></label>
@@ -63,8 +63,7 @@
                 <tr>
                     <td>
                         <a href="https://dom.ria.com/ru/{{item['beautiful_url']}}">{{item['title']}}</a>
-                        <br>{{ item.district_name }} район
-                        | {{ item.rooms_count }} {% if item.rooms_count == 1 %}комната{% else %}комнаты{% endif %}
+                        <br> {{ item.rooms_count }} {% if item.rooms_count == 1 %}комната{% else %}комнаты{% endif %}
                         | {{ item.priceArr['3'] }} грн.
                         <br>{{ item.description|safe|truncate(220) }}
                     </td>
@@ -82,17 +81,15 @@
         {% else %}
         <button type="button" class="btn btn-outline-secondary" onclick="gotoPage({{page - 1}})"><<</button>
         {% endif %}
-        <a href="#" class="btn btn-outline-light btn-lg disabled" tabindex="-1" role="button" aria-disabled="true"></a>
 
         {% for p in pagination %}
         {% if p == '...' %}
-        <a href="#" class="btn btn-outline-secondary btn-lg disabled" tabindex="-1" role="button" aria-disabled="true">...</a>
+        <a href="#" class="btn btn-outline-secondary btn-lg disabled" tabindex="-1" role="button" aria-disabled="true"></a>
         {% else %}
         <button type="button" class="btn btn-{% if (p - 1) == page %}primary{% else %}outline-secondary{% endif %}" onclick="gotoPage({{p - 1}})">{{p}}</button>
         {% endif %}
         {% endfor %}
 
-        <a href="#" class="btn btn-outline-light btn-lg disabled" tabindex="-1" role="button" aria-disabled="true"></a>
         {% if page + 1 == pages %}
         <button type="button" class="btn btn-outline-secondary" disabled>>></button>
         {% else %}

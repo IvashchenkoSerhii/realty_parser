@@ -39,7 +39,7 @@ def abbreviated_pages(page, n):
     and abbreviated with ellipses if too long.
 
     abbreviated_pages(20, 40)
-    [1, '...', 18, 19, 20, 21, 22, '...', 40]
+    [1, '...', 19, 20, 21, '...', 40]
 
     https://codereview.stackexchange.com/a/15239
     """
@@ -51,7 +51,7 @@ def abbreviated_pages(page, n):
     else:
         pages = (
             set([1]) |
-            set(range(max(1, page - 2), min(page + 3, n + 1))) |
+            set(range(max(1, page - 1), min(page + 2, n + 1))) |
             set(range(n, n + 1))
         )
 
@@ -113,9 +113,33 @@ async def periodic_updater(app):
 
 
 async def get_update_date(app):
+    """
+    Returns `date_from` and `date_update` from ES or creates empty values.
 
+    Ping ES connection while it is not established yet.
+    Get data if `update_date` doc exists or create values for first download.
+
+    Args:
+        app:aiohttp app instance
+
+    Returns:
+        date_from:str: '' or like '2019-07-25'
+        date_update:float: `time.time()` like 1564122523.763925
+    """
     index = app.cfg['es']['indexes']['system']
-    if not await app.es.exists(index=index, id='update_date'):
+    while True:
+        try:
+            ping = await app.es.ping()
+            log.debug(f'es.ping: {ping}')
+            assert ping
+            break
+        except Exception as e:
+            log.error(f'es.ping: {e}')
+            await asyncio.sleep(10)
+
+    exists = await app.es.exists(index=index, id='update_date')
+
+    if not exists:
         # date_from = '2019-07-25'
         date_from = ''
         date_update = time.time()

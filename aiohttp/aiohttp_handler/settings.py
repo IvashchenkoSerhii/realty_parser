@@ -7,6 +7,7 @@ logging.basicConfig(format=FORMAT)
 
 log = logging.getLogger('app')
 log.setLevel(logging.DEBUG)
+logging.getLogger("elasticsearch").setLevel(logging.CRITICAL)
 
 
 def get_config(CONFIG_ROOT, config_filename):
