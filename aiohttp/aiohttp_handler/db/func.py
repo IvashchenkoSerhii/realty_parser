@@ -6,29 +6,23 @@ import math
 SEARCH_FIELDS = [
     'description', 'district_name', 'street_name', 'metro_station_name'
 ]
+TITLE_TEMPLATE = {
+    'district_name': 'р-н. {}',
+    'street_name': '{},',
+    'rooms_count': '{} ком.',
+    'city_name': 'г. {}',
+    'metro_station_name': '(М) ст. {}',
+}
 
 
 def get_title(item):
     """Create short title for realty item."""
 
-    # TODO get short_title if less fields exists.
-    short_title = "р-н. {dn} {sn}, {rc} ком. г. {cn}"
-    short_title_msn = "р-н. {dn} {sn}, {rc} ком. г. {cn} (М) ст. {msn}"
-
-    if item.get('metro_station_name'):
-        title = short_title_msn.format(
-            dn=item['district_name'],
-            sn=item['street_name'],
-            rc=item['rooms_count'],
-            cn=item['city_name'],
-            msn=item['metro_station_name'])
-    else:
-        title = short_title.format(
-            dn=item['district_name'],
-            sn=item['street_name'],
-            rc=item['rooms_count'],
-            cn=item['city_name'])
-    return title
+    title_buffer = []
+    for field in TITLE_TEMPLATE:
+        if item.get(field):
+            title_buffer.append(TITLE_TEMPLATE[field].format(item[field]))
+    return ' '.join(title_buffer)
 
 
 def compact_item(item):
@@ -43,14 +37,20 @@ async def search_realty(
         **kwargs):
     """Search realty in ES with filters.
 
-    arg: description: str - searchable text
-    arg: districts: [1, 2]
-    arg: rooms_count: [1, 2]
-    arg: price_min: int
-    arg: price_max: int
-    arg: price_curr: int : 1 - USD, 2 - EUR, 3 - UAH
-    arg: page: int
-    arg: sort: pr_a, pr_d, pd_a, pd_d
+    Args:
+        description: str - searchable text
+        districts: [1, 2]
+        rooms_count: [1, 2]
+        price_min: int
+        price_max: int
+        price_curr: int : 1 - USD, 2 - EUR, 3 - UAH
+        page: int
+        sort: pr_a, pr_d, pd_a, pd_d
+
+    Returns:
+        result_list:list:
+        count:int:
+        pages:int:
     """
     offset = 10
     from_ = page * offset
@@ -59,7 +59,6 @@ async def search_realty(
         'bool': {
             'should': [],
             'filter': [],
-            # 'minimum_should_match': '1<25%'  # TODO config
         }
     }
     if description:
@@ -86,6 +85,7 @@ async def search_realty(
         abbreviations = {
             'pd': 'publishing_date',
             'pr': f'priceArr.{price_curr}',
+            'sc': '_score',
             'a': 'asc',
             'd': 'desc',
         }

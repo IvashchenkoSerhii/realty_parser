@@ -8,37 +8,44 @@
 <div class="container">
     <div class="row">
         <div class="col col-lg-2">
-            <p> <b>Районы Киева:</b>
+            <div> 
+                <b>Районы Киева:</b>
                 {% for key, value in app['cfg']['districts'].items() %}
                 <div class="custom-control custom-checkbox">
                     <input type="checkbox" class="custom-control-input" id="checkDist{{key}}" name="checkDist" value={{key}} {% if key in filters.districts %} checked {% endif %}>
                     <label class="custom-control-label" for="checkDist{{key}}">{{value}}</label>
                 </div>
                 {% endfor %}
-            </p>
-            <p> <b>Количество комнат:</b>
+            </div>
+            <br>
+            <div>
+                <b>Количество комнат:</b><br>
                 {% for i in range(1, 10) %}
                 <div class="form-check form-check-inline">
                     <input class="form-check-input custom-control-input" type="checkbox" id="checkRoom{{i}}" name="checkRoom" value={{i}} {% if i in filters.rooms_count %} checked {% endif %}>
                     <label class="custom-control-label" for="checkRoom{{i}}">{{i}}</label>
                 </div>
                 {% endfor %}
-            </p>
-            <p><b>Цена:</b>
+            </div>
+            <div>
+                <b>Цена:</b>
                 <input type="number" class="form-control" id="price_min" placeholder="от" {% if filters.price_min %} value={{filters.price_min}} {% endif %} />
                 <input type="number" class="form-control" id="price_max" placeholder="до" {% if filters.price_max %} value={{filters.price_max}} {% endif %} />
-            </p>
+            </div>
             <div class="form-group">
                 <label for="description"><b>Поиск по описанию:</b></label>
                 <textarea class="form-control" id="description" rows="3">{% if filters.description %}{{filters.description}} {% endif %}</textarea>
             </div>
-            <div><b>Сортировка:</b>
+            <div>
+                <b>Сортировка:</b>
                 {%
                     set abbreviations = [
+                        ('sc_d', 'по релеватности d'),
+                        ('sc_a', 'по релеватности u'),
                         ('pr_a', 'по цене вверх'),
                         ('pr_d', 'по цене вниз'),
                         ('pd_a', 'по дате вверх'),
-                        ('pd_d', 'по дате вниз')
+                        ('pd_d', 'по дате вниз'),
                     ]
                 %}
                 {% for abbreviation, label in abbreviations %}
@@ -63,6 +70,7 @@
                 <tr>
                     <td>
                         <a href="https://dom.ria.com/ru/{{item['beautiful_url']}}">{{item['title']}}</a>
+                        <br> район: {{ item.district_name }}
                         <br> {{ item.rooms_count }} {% if item.rooms_count == 1 %}комната{% else %}комнаты{% endif %}
                         | {{ item.priceArr['3'] }} грн.
                         <br>{{ item.description|safe|truncate(220) }}

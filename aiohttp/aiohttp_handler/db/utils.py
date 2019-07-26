@@ -15,7 +15,7 @@ STR_FILTERS = {'description', 'sort'}
 
 
 def get_filters(query_string):
-    filters = {}
+    filters = {'sort': 'sc_d'}  # default sorting by _score
     try:
         query_dct = parse.parse_qs(query_string)
         for key, val in query_dct.items():
