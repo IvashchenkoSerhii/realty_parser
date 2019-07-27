@@ -7,7 +7,7 @@
 </h2>
 <div class="container">
     <div class="row">
-        <div class="col col-lg-2">
+        <div class="col col-lg-3">
             <div> 
                 <b>Районы Киева:</b>
                 {% for key, value in app['cfg']['districts'].items() %}
@@ -40,12 +40,12 @@
                 <b>Сортировка:</b>
                 {%
                     set abbreviations = [
-                        ('sc_d', 'по релеватности d'),
-                        ('sc_a', 'по релеватности u'),
-                        ('pr_a', 'по цене вверх'),
+                        ('sc_d', 'по релевантности вниз'),
+                        ('sc_a', 'по релевантности вверх'),
+                        ('pd_d', 'по дате публикации вниз'),
+                        ('pd_a', 'по дате публикации вверх'),
                         ('pr_d', 'по цене вниз'),
-                        ('pd_a', 'по дате вверх'),
-                        ('pd_d', 'по дате вниз'),
+                        ('pr_a', 'по цене вверх'),
                     ]
                 %}
                 {% for abbreviation, label in abbreviations %}
