@@ -43,8 +43,8 @@ def abbreviated_pages(page, n):
 
     https://codereview.stackexchange.com/a/15239
     """
-    assert(0 < n)
-    assert(0 < page <= n)
+    if (n <= 0) or (page <= 0) or (page > n):
+        return []
 
     if n <= 10:
         pages = set(range(1, n + 1))
