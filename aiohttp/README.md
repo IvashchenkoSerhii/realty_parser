@@ -4,7 +4,7 @@
 
 #### Run application:
 
-    adev runserver aiohttp_handler  # dev tools
+    adev runserver aiohttp_handler --static=aiohttp_handler/static/  # dev tools
     python -m aiohttp_handler  # prod
 
 #### Run tests:
