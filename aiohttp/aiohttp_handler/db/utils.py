@@ -311,6 +311,12 @@ async def update_realty_list(app):
             f'update_realty_list. i: {i} '
             f'updated: {res.count(1)} error: {res.count(0)}')
 
+    index = app.cfg['es']['indexes']['realty']
+    indexes = await app.es.indices.get("*")
+    if index not in indexes:
+        log.warning(f'index: {index} not in indexes.')
+        return
+
     log.debug('update_realty_list. start')
     i = 0
     tasks = []
