@@ -59,7 +59,8 @@ async def search_realty(
         'bool': {
             'should': [],
             'filter': [],
-        }
+            'must': [{'match': {'deleted_by.keyword': ''}}],
+        },
     }
     if description:
         for key in SEARCH_FIELDS:

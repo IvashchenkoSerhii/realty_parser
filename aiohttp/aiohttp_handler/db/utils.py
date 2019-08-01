@@ -70,7 +70,7 @@ def minimaze_item(item):
     required_fields = [
         'realty_id', 'beautiful_url', 'description', 'rooms_count',
         'district_name', 'street_name', 'city_name', 'metro_station_name',
-        'priceArr'
+        'priceArr', 'deleted_by'
     ]
     item_min = {k: item.get(k, '') for k in required_fields}
     item_min['priceArr'] = {
@@ -107,6 +107,7 @@ async def periodic_updater(app):
             await asyncio.sleep(sleep + 1)
 
         log.debug('periodic_updater start')
+        await update_realty_list(app)
         await download_realty_list(app, date_from, page=0)
         log.debug(f'periodic_updater done.')
         await asyncio.sleep(5)  # wait ES update index
@@ -176,7 +177,7 @@ async def set_next_update_date(app):
     return True
 
 
-async def store_realty(app, realty_id):
+async def store_realty(app, realty_id, update_old=True):
     """
     Store realty item on ES.
 
@@ -193,13 +194,15 @@ async def store_realty(app, realty_id):
 
     # TODO check district name before storing.
     item = minimaze_item(r_json)
+    if exists and not update_old:
+        return 1
     inserted = await insert_realty_es(app, realty_id, item)
     if not inserted:
         return 0
     if exists:
         # log.debug(f'store_realty: update {realty_id}')
         return 1
-    log.debug(f'store_realty: create {realty_id}')
+    # log.debug(f'store_realty: create {realty_id}')
     return 2
 
 
@@ -255,7 +258,8 @@ async def download_realty_list(app, date_from, page=0):
         count = r_json['count']
         tasks = []
         for realty_id in realty_id_list:
-            task = asyncio.ensure_future(store_realty(app, realty_id))
+            task = asyncio.ensure_future(
+                store_realty(app, realty_id, update_old=False))
             tasks.append(task)
         res = await asyncio.gather(*tasks)
         log.debug(
@@ -268,3 +272,56 @@ async def download_realty_list(app, date_from, page=0):
             break
         await asyncio.sleep(1)  # for ES indexing
     await set_next_update_date(app)
+
+
+async def update_realty_list(app):
+    """Update available realty documents."""
+
+    async def get_es_realty_id_list(app):
+        """Yield all realty documents with empty `deleted_by`."""
+
+        query = {
+            'bool': {
+                'must': [{'match': {'deleted_by.keyword': ''}}],
+            },
+        }
+        scroll = "5m"
+        size = 5000
+        res = await app.es.search(
+            index=app.cfg['es']['indexes']['realty'],
+            body={
+                "query": query,
+                "_source": [""],
+                "size": size,
+            },
+            scroll=scroll
+        )
+
+        scroll_id = res.get('_scroll_id')
+        while scroll_id and res["hits"]["hits"]:
+            for hit in res["hits"]["hits"]:
+                yield hit
+            res = await app.es.scroll(scroll_id=scroll_id, scroll=scroll)
+            scroll_id = res.get('_scroll_id')
+        await app.es.clear_scroll(scroll_id=scroll_id, ignore=(404,))
+
+    async def gather_tasks(tasks):
+        res = await asyncio.gather(*tasks)
+        log.debug(
+            f'update_realty_list. i: {i} '
+            f'updated: {res.count(1)} error: {res.count(0)}')
+
+    log.debug('update_realty_list. start')
+    i = 0
+    tasks = []
+    async for item in get_es_realty_id_list(app=app):
+        task = asyncio.ensure_future(
+            store_realty(app, realty_id=item['_id'], update_old=True)
+        )
+        tasks.append(task)
+        i += 1
+        if i % 100 == 0:
+            await gather_tasks(tasks)
+            tasks = []
+    await gather_tasks(tasks)
+    log.debug(f'update_realty_list. count: {i}')
